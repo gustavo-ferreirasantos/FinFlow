@@ -1,0 +1,29 @@
+# Ambiente Virtual Python
+venv/
+env/
+ENV/
+.venv/
+
+# Arquivos compilados e cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Banco de dados local de desenvolvimento (cada um roda as migrações no seu)
+db.sqlite3
+db.sqlite3-journal
+
+# Arquivos de IDE / Editores de código
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de variáveis de ambiente e logs
+.env
+*.log
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
