@@ -1,24 +1,24 @@
 from django.db import models
+import uuid
 from django.contrib.auth.models import User
 
 
 
-
-
-
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    telephone = models.CharField(max_length=30)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    telephone = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
         """Representação em string do modelo"""
-        return self.telephone
+        return self.user.username
+
 
 
 class Workspace (models.Model):
     name = models.CharField(max_length=100)
     holder = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    created_at = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         """Representação em string do modelo"""
         return self.name
@@ -33,14 +33,25 @@ class WorkspaceMember (models.Model):
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     role = models.CharField(max_length=1, choices=TYPES)
-    created_at = models.DataField()
+    registered_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         """Representação em string do modelo"""
-        return self.workspace, self.profile, self.role, self.date
+        return f"{self.workspace} - {self.profile}"
+
 
 
 class Invitation (models.Model):
-    nome = models.CharField(max_length=100)
-    holder = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    TYPES = {
+        "P": "PENDING",
+        "A": "ACCEPTED",
+        "R": "REJECTED",
+        "E": "EXPIRED",
+    }
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
+    email = models.EmailField()
+    status = models.CharField(max_length=1, choices=TYPES, default="P")
+    token = models.UUIDField(default=uuid.uuid4, unique=True, blank=True, null=True)
+    sent_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         """Representação em string do modelo"""
+        return self.email
