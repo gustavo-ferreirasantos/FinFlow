@@ -1,4 +1,4 @@
-Admin
+admin
 
 Usuário: admin
 Senha: admin123

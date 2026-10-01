@@ -1,6 +1,7 @@
 import random
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from faker import Faker
 
@@ -14,23 +15,25 @@ class Command(BaseCommand):
         fake = Faker('pt_BR')
 
         self.stdout.write(self.style.WARNING("Iniciando a carga de dados de usuarios..."))
+        senha_criptografada = make_password("password123")
 
         with transaction.atomic():
-            # 1. Gerar 100 Usuarios e Perfis associados
+            # 1. Gerar 5000 Usuarios e Perfis associados
             perfis = []
-            for i in range(1, 101):
+            for i in range(1, 5001):
                 nome = fake.first_name()
                 sobrenome = fake.last_name()
                 username = f"{nome.lower()}_{sobrenome.lower()}_{i}"
                 email = f"{username}@{fake.free_email_domain()}"
 
-                user = User.objects.create_user(
+                user = User(
                     username=username,
                     email=email,
-                    password="password123",
+                    password=senha_criptografada,
                     first_name=nome,
                     last_name=sobrenome
                 )
+                user.save()
 
                 perfil = Profile.objects.create(
                     user=user,
@@ -38,13 +41,13 @@ class Command(BaseCommand):
                 )
                 perfis.append(perfil)
 
-            self.stdout.write(self.style.SUCCESS("[+] 100 usuarios e perfis criados."))
+            self.stdout.write(self.style.SUCCESS("[+] 5000 usuarios e perfis criados."))
 
-            # 2. Criar 20 Espacos Financeiros (usando os 10 primeiros perfis como titulares)
+            # 2. Criar 1000 Espacos Financeiros 
             espacos = []
             tipos_espaco = ["Familia", "Casa", "Projeto", "Financas", "Republica", "Casal", "Viagem"]
 
-            for i in range(20):
+            for i in range(1000):
                 titular = perfis[i]
                 nome_espaco = f"{random.choice(tipos_espaco)} {titular.user.last_name}"
 
@@ -54,7 +57,7 @@ class Command(BaseCommand):
                 )
                 espacos.append(espaco)
 
-            self.stdout.write(self.style.SUCCESS("[+] 20 espacos financeiros criados."))
+            self.stdout.write(self.style.SUCCESS("[+] 1000 espacos financeiros criados."))
 
             # 3. Vincular Titulares e Membros adicionais aos Espacos
             total_membros = 0
@@ -82,9 +85,9 @@ class Command(BaseCommand):
 
             self.stdout.write(self.style.SUCCESS(f"[+] {total_membros} vinculos de membros registrados."))
 
-            # 4. Gerar 40 Convites distribuidos aleatoriamente entre os espacos
+            # 4. Gerar 2000 Convites distribuidos aleatoriamente entre os espacos
             status_opcoes = ['P', 'A', 'R', 'E']
-            for _ in range(40):
+            for _ in range(2000):
                 espaco_sorteado = random.choice(espacos)
                 Invitation.objects.create(
                     workspace=espaco_sorteado,
@@ -92,6 +95,6 @@ class Command(BaseCommand):
                     status=random.choice(status_opcoes)
                 )
 
-            self.stdout.write(self.style.SUCCESS("[+] 40 convites gerados com sucesso."))
+            self.stdout.write(self.style.SUCCESS("[+] 2000 convites gerados com sucesso."))
 
         self.stdout.write(self.style.SUCCESS("\n[OK] Carga de usuarios finalizada com sucesso!"))
