@@ -10,9 +10,6 @@ __pycache__/
 *$py.class
 *.pyc
 
-# Banco de dados local de desenvolvimento (cada um roda as migrações no seu)
-db.sqlite3
-db.sqlite3-journal
 
 # Arquivos de IDE / Editores de código
 .vscode/

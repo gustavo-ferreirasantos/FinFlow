@@ -33,6 +33,8 @@ Acesse: **http://127.0.0.1:8000/admin/**
 Caso o arquivo `db.sqlite3` não exista (ou queira recomeçar), execute **nesta ordem**:
 
 ```bash
+python manage.py makemigrations users
+python manage.py makemigrations finances
 python manage.py migrate            # cria as tabelas
 python manage.py popular_usuarios   # 1º: usuários, perfis, espaços e convites
 python manage.py popular_financas   # 2º: contas, transações, faturas, metas etc.

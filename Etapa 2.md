@@ -55,6 +55,7 @@ http://127.0.0.1:8000/admin/
 ```bash
 Remove-Item db.sqlite3
 Remove-Item users\migrations\0*.py
+Remove-Item finances\migrations\0*.py
 ```
 
 ## ⚙️ Customização do Django Admin (usuarios/admin.py)
