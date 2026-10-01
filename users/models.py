@@ -26,13 +26,13 @@ class Workspace (models.Model):
 
 
 class WorkspaceMember (models.Model):
-    TYPES = {
+    ROLE_CHOICES = {
         "T": "TITULAR",
         "M": "MEMBRO",
     }
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    role = models.CharField(max_length=1, choices=TYPES)
+    role = models.CharField(max_length=1, choices=ROLE_CHOICES)
     registered_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         """Representação em string do modelo"""
@@ -41,15 +41,15 @@ class WorkspaceMember (models.Model):
 
 
 class Invitation (models.Model):
-    TYPES = {
-        "P": "PENDING",
-        "A": "ACCEPTED",
-        "R": "REJECTED",
-        "E": "EXPIRED",
+    STATUS_CHOICES = {
+        "P": "PENDENTE",
+        "A": "ACEITO",
+        "R": "REJEITADO",
+        "E": "EXPIRADO",
     }
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
     email = models.EmailField()
-    status = models.CharField(max_length=1, choices=TYPES, default="P")
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="P")
     token = models.UUIDField(default=uuid.uuid4, unique=True, blank=True, null=True)
     sent_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):

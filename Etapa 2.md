@@ -1,3 +1,5 @@
+# Etapa 2
+
 # Setup + Modelos usuarios (finflow)
 
 ## 🎯 Objetivo da Etapa
@@ -42,9 +44,9 @@ python manage.py migrate
 
 ```bash
 python manage.py createsuperuser 
-Username: johndoe
-Email address: johndoe@dummymail.com
-Password: senha123
+Username: admin
+Email address: admin@gmail.com
+Password: admindsw
 python manage.py runserver
 http://127.0.0.1:8000/admin/
 ```
@@ -55,3 +57,34 @@ Remove-Item db.sqlite3
 Remove-Item users\migrations\0*.py
 ```
 
+## ⚙️ Customização do Django Admin (usuarios/admin.py)
+
+
+
+> 📌 **Referência na documentação:** [ Escrevendo sua primeira aplicação Django, parte 2 ](https://docs.djangoproject.com/pt-br/6.1/intro/tutorial02/)  
+
+
+
+
+
+
+## ⚙️ Extras
+
+
+
+
+## ⚙️ Aprimorar interface do Dashboard Admin
+
+> 📌 **Referência no vídeo:** [  Django Custom Admin Panel In One Minute || Django Tricks || Python Hindi Tutorials  ](https://youtu.be/Ugo1HzcQZjI?si=MWALMJOlBKDHRTu_)  
+
+
+## >_ Em finflow/settings.py
+```bash
+INSTALLED_APPS = [
+    'jazzmin',     
+    ...
+]
+
+
+pip install django-jazzmin
+```
