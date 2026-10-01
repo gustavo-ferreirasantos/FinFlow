@@ -31,12 +31,16 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'jazzmin',                      # Interface aprimorada para o dashboard de admin
+
+
+    'django.contrib.admin',         # O site de administração
+    'django.contrib.auth',          # Um sistema de autenticação
+    'django.contrib.contenttypes',  # Um framework para tipos de conteúdo
+    'django.contrib.sessions',      # Um framework de sessão
+    'django.contrib.messages',      # Um framework de envio de mensagem
+    'django.contrib.staticfiles',   # Um framework para gerenciamento de arquivos estático
+
     'django.contrib.humanize',      #
     'users',                        #
     'finances',                     #           
