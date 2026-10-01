@@ -2,11 +2,10 @@ import random
 from datetime import date, timedelta
 from decimal import Decimal
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from faker import Faker
 
-from usuarios.models import EspacoFinanceiro, Perfil, MembroEspaco
-from financas.models import (
+from users.models import Profile, Workspace, WorkspaceMember
+from finances.models import (
     Conta,
     Categoria,
     CartaoCredito,
@@ -17,7 +16,7 @@ from financas.models import (
     TransacaoRecorrente,
 )
 
-
+# Usar Decimal() evita as imprecisões do tipo float 
 class Command(BaseCommand):
     help = "Carga massiva de dados financeiros (contas, categorias, transações, faturas, orçamentos, metas e recorrentes)."
 
@@ -25,7 +24,7 @@ class Command(BaseCommand):
         fake = Faker('pt_BR')
         self.stdout.write(self.style.WARNING("Iniciando a carga de dados financeiros..."))
 
-        espacos = list(EspacoFinanceiro.objects.all())
+        espacos = list(Workspace.objects.all())
         if not espacos:
             self.stdout.write(
                 self.style.ERROR(
@@ -45,7 +44,7 @@ class Command(BaseCommand):
         total_outros = 0
 
         for espaco in espacos:
-            self.stdout.write(f"Processando espaço: {espaco.nome}...")
+            self.stdout.write(f"Processando espaço: {espaco.name}...")
 
             # 1. Criar Contas Bancárias (2 a 4 por espaço)
             qtd_contas = random.randint(2, 4)
@@ -70,8 +69,8 @@ class Command(BaseCommand):
                 cat = Categoria.objects.create(espaco=espaco, nome=nome_cat, tipo="Despesa")
                 cats_espaco.append(cat)
 
-            membros_espaco = list(MembroEspaco.objects.filter(espaco=espaco).select_related('perfil'))
-            responsaveis = [m.perfil for m in membros_espaco] if membros_espaco else []
+            membros_espaco = list(WorkspaceMember.objects.filter(workspace=espaco).select_related('profile'))
+            responsaveis = [m.profile for m in membros_espaco] if membros_espaco else []
 
             # 3. Geração Massiva de Transações (~50 por espaço)
             cat_receitas = [c for c in cats_espaco if c.tipo == "Receita"]
