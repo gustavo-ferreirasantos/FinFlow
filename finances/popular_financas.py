@@ -4,7 +4,8 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from faker import Faker
 
-from users.models import Profile, Workspace, WorkspaceMember
+# Removi profile porque ele já é obtido a partir de membros_espaco
+from users.models import Workspace, WorkspaceMember
 from finances.models import (
     Conta,
     Categoria,
@@ -27,7 +28,7 @@ class Command(BaseCommand):
         espacos = list(Workspace.objects.all())
         if not espacos:
             self.stdout.write(
-                self.style.ERROR(
+                self.style.ERROR( # Formata a mensagem com cor vermelha
                     "Nenhum Espaço Financeiro encontrado! Execute 'python manage.py popular_usuarios' primeiro."
                 )
             )
@@ -51,6 +52,7 @@ class Command(BaseCommand):
             contas_espaco = []
             for _ in range(qtd_contas):
                 nome_banco = random.choice(bancos_disponiveis)
+                # Como o faker pode gerar qualquer palavra da língua portuguesa, os nomes gerados podem ser bastante estranhos
                 nome_conta = f"{nome_banco} - {fake.word().capitalize()}"
                 conta = Conta.objects.create(
                     espaco=espaco,
@@ -58,9 +60,9 @@ class Command(BaseCommand):
                     tipo=random.choice(tipos_conta),
                     saldo_inicial=Decimal(str(random.uniform(500.0, 15000.0)).format(".2f")),
                 )
-                contas_espaco.append(conta)
+                contas_espaco.append(conta) # Vai conter a lista de contas bancárias
 
-            # 2. Criar Categorias de Receitas e Despesas
+            # 2. Criar Categorias de Receitas e Despesas (cat é a abreviação de categoria)
             cats_espaco = []
             for nome_cat in categorias_receita:
                 cat = Categoria.objects.create(espaco=espaco, nome=nome_cat, tipo="Receita")
@@ -76,6 +78,7 @@ class Command(BaseCommand):
             cat_receitas = [c for c in cats_espaco if c.tipo == "Receita"]
             cat_despesas = [c for c in cats_espaco if c.tipo == "Despesa"]
 
+            # Gera aleatoriamente receitas e despesas com igual chance
             for _ in range(50):
                 tipo_transacao = random.choice(["Receita", "Despesa"])
                 categoria = random.choice(cat_receitas if tipo_transacao == "Receita" else cat_despesas)
@@ -84,7 +87,7 @@ class Command(BaseCommand):
                 
                 valor = Decimal(str(random.uniform(10.0, 3000.0) if tipo_transacao == "Despesa" else random.uniform(1000.0, 8000.0)).format(".2f"))
                 data_transacao = fake.date_between(start_date='-6m', end_date='today')
-
+                # Cria uma nova linha na tabela transacao
                 Transacao.objects.create(
                     conta=conta,
                     categoria=categoria,
@@ -97,7 +100,9 @@ class Command(BaseCommand):
                 total_transacoes += 1
 
             # 4. Cartões de Crédito e Faturas (últimos 6 meses)
+            # Pega a primeira conta corrente da lista caso ela exista, caso contrário, retorna a primeira conta da lista
             conta_corrente = next((c for c in contas_espaco if c.tipo == "Corrente"), contas_espaco[0])
+            # Cria um cartão pra cada espaço financeiro
             cartao = CartaoCredito.objects.create(
                 conta=conta_corrente,
                 nome=f"Mastercard {fake.word().capitalize()}",
@@ -108,6 +113,7 @@ class Command(BaseCommand):
 
             hoje = date.today()
             for i in range(6):
+                # Calcula o primeiro dia do mês de referência das faturas, retrocedendo i meses a partir de hoje
                 mes_ref = (hoje.replace(day=1) - timedelta(days=30 * i)).replace(day=1)
                 
                 if i > 1:
@@ -118,7 +124,7 @@ class Command(BaseCommand):
                     status_fatura = "Aberta"
 
                 valor_fatura = Decimal(str(random.uniform(200.0, 3500.0)).format(".2f"))
-
+                # 6 faturas, cada uma dos últimos 6 meses pra cada cartão
                 Fatura.objects.create(
                     cartao=cartao,
                     mes_referencia=mes_ref,
@@ -161,7 +167,7 @@ class Command(BaseCommand):
             total_outros += 1
 
         self.stdout.write(
-            self.style.SUCCESS(
+            self.style.SUCCESS( # Formata a mensagem com cor verde
                 f"\nCarga concluída com sucesso!\n"
                 f"- Transações geradas: {total_transacoes}\n"
                 f"- Faturas geradas: {total_faturas}\n"
