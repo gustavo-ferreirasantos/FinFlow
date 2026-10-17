@@ -4,12 +4,13 @@ from .models import Account, Category, Transaction
 
 
 class TransactionForm(forms.ModelForm):
-    model = Transaction
-    fields = ["description", "value", "type", "date", "account", "category", "responsible"]
-    widgets = {
-            #type="date" mostra o calendário do navegador; o format garante que a data apareça preenchida ao editar uma transação
-            "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
-        }
+    class Meta:
+        model = Transaction
+        fields = ["description", "value", "type", "date", "account", "category", "responsible"]
+        widgets = {
+                #type="date" mostra o calendário do navegador; o format garante que a data apareça preenchida ao editar uma transação
+                "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            }
 
 
     def __init__(self, *args, workspace = None, **kwargs):
