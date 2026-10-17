@@ -21,3 +21,8 @@ class TransactionForm(forms.ModelForm):
         self.fields["category"].queryset = Category.objects.filter(workspace=workspace)
         self.fields["responsible"].queryset = Profile.objects.filter(workspacemember__workspace=workspace).distinct()
 
+
+class AccountForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = ["name", "type", "initial_balance"]

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Contas{% endblock %}
+
+{% block content %}
+<h1>Contas</h1>
+
+<p><a href="{% url 'finances:account_create' %}">Nova conta</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Tipo</th>
+      <th>Saldo inicial</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for account in accounts %}
+      <tr>
+        <td>{{ account.name }}</td>
+        <td>{{ account.get_type_display }}</td>
+        <td>R$ {{ account.initial_balance|intcomma }}</td>
+        <td>
+          <a href="{% url 'finances:account_update' account.pk %}">Editar</a>
+          <a href="{% url 'finances:account_delete' account.pk %}">Excluir</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4">Nenhuma conta cadastrada neste espaço.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
