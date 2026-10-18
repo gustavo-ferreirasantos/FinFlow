@@ -39,6 +39,7 @@
       <th>Categoria</th>
       <th>Conta</th>
       <th>Valor</th>
+      <th>Ações</th>
     </tr>
   </thead>
   <tbody>
@@ -54,6 +55,10 @@
           {% else %}
             <span class="badge badge-despesa">- R$ {{ transaction.value|floatformat:"2g" }}</span>
           {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'finances:transaction_update' transaction.pk %}">Editar</a>
+          <a href="{% url 'finances:transaction_delete' transaction.pk %}">Excluir</a>
         </td>
       </tr>
     {% empty %}

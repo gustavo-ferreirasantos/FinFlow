@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir transação{% endblock %}
+
+{% block content %}
+<h1>Excluir transação</h1>
+
+<p>Tem certeza de que deseja excluir a transação “{{ object.description }}”?</p>
+<ul>
+  <li>Data: {{ object.date|date:"d/m/Y" }}</li>
+  <li>Conta: {{ object.account.name }}</li>
+  <li>Categoria: {{ object.category.name }}</li>
+  <li>Valor: R$ {{ object.value|floatformat:"2g" }}</li>
+</ul>
+<p class="warning">Essa ação não pode ser desfeita.</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Sim, excluir</button>
+  <a href="{% url 'finances:transaction_list' %}">Cancelar</a>
+</form>
+{% endblock %}
+
