@@ -1,0 +1,22 @@
+
+
+{% extends "base.html" %}
+
+{% block title %}Excluir categoria{% endblock %}
+
+{% block content %}
+<h1>Excluir categoria</h1>
+
+<p>Tem certeza de que deseja excluir a categoria “{{ object.name }}”?</p>
+<p class="warning">
+  Os orçamentos desta categoria também serão excluídos. Se houver transações ou recorrências
+  usando a categoria, ela não poderá ser excluída.
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Sim, excluir</button>
+  <a href="{% url 'finances:category_list' %}">Cancelar</a>
+</form>
+{% endblock %}
+
