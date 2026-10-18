@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir conta{% endblock %}
+
+{% block content %}
+<h1>Excluir conta</h1>
+
+<p>Tem certeza de que deseja excluir a conta “{{ object.name }}”?</p>
+<p class="warning">
+  Todas as transações, cartões de crédito e recorrências ligados a esta conta também serão excluídos.
+  Essa ação não pode ser desfeita.
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Sim, excluir</button>
+  <a href="{% url 'finances:account_list' %}">Cancelar</a>
+</form>
+{% endblock %}
+
