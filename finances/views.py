@@ -4,10 +4,10 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, DeleteView, UpdateView
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Q, Sum
 
 from users.models import Workspace
-from .forms import TransactionForm, AccountForm, CategoryForm
+from .forms import TransactionForm, AccountForm, CategoryForm, StatementFilterForm
 from .models import Transaction, Account, Category
 
 
@@ -53,7 +53,6 @@ class TransactionCreateView(WorkspaceMixin, SuccessMessageMixin, CreateView):
     template_name = "finances/transaction_form.html"
     success_url = reverse_lazy("finances:transaction_list")
     success_message = "Transação “%(description)s” cadastrada com sucesso."
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["workspace"] = self.workspace
@@ -89,7 +88,6 @@ class AccountCreateView(WorkspaceMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         form.instance.workspace = self.workspace
         return super().form_valid(form)
-
     def form_invalid(self, form):
         messages.error(self.request, "Não foi possível salvar a conta. Corrija os campos destacados.")
         return super().form_invalid(form)
@@ -103,7 +101,6 @@ class AccountUpdateView(WorkspaceMixin, SuccessMessageMixin, UpdateView):
     template_name = "finances/account_form.html"
     success_url = reverse_lazy("finances:account_list")
     success_message = "Conta “%(name)s” atualizada com sucesso."
-
     def get_queryset(self):
         return Account.objects.filter(workspace=self.workspace)
 
@@ -133,6 +130,7 @@ class CategoryListView(WorkspaceMixin, ListView):
     template_name = "finances/category_list.html"
     context_object_name = "categories"
 
+
     def get_queryset(self):
         # "-type" coloca Receita "R" antes de Despesa "D"
         return Category.objects.filter(workspace=self.workspace).order_by("-type", "name")
@@ -146,6 +144,7 @@ class CategoryCreateView(WorkspaceMixin, SuccessMessageMixin, CreateView):
     template_name = "finances/category_form.html"
     success_url = reverse_lazy("finances:category_list")
     success_message = "Categoria “%(name)s” criada com sucesso."
+
 
     def form_valid(self, form):
         form.instance.workspace = self.workspace
@@ -192,5 +191,53 @@ class CategoryDeleteView(WorkspaceMixin, DeleteView):
         messages.success(self.request, f"Categoria “{self.object.name}” excluída.")
         return response
 
+    
 
+class StatementView(WorkspaceMixin, ListView):
+    model = Transaction
+    template_name = "finances/statement.html"
+    context_object_name = "transactions"
+    paginate_by = 20
+
+    def get_queryset(self):
+        self.filter_form = StatementFilterForm(self.request.GET or None, workspace=self.workspace)
+        queryset = Transaction.objects.filter(account__workspace=self.workspace).select_related("account", "category").order_by("-date", "-id")
+
+        if not self.filter_form.is_bound:
+            return queryset
+        if not self.filter_form.is_valid():
+            messages.error(self.request, "Não foi possível aplicar os filtros. Corrija os campos destacados.")
+            return queryset.none()
+
+        data = self.filter_form.cleaned_data
+        if data["start_date"]:
+            queryset = queryset.filter(date__gte=data["start_date"])
+        if data["end_date"]:
+            queryset = queryset.filter(date__lte=data["end_date"])
+        if data["account"]:
+            queryset = queryset.filter(account=data["account"])
+        if data["category"]:
+            queryset = queryset.filter(category=data["category"])
+        if data["type"]:
+            queryset = queryset.filter(type=data["type"])
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        totals = self.object_list.aggregate(
+            income=Sum("value", filter=Q(type="R")),
+            expense=Sum("value", filter=Q(type="D")),
+        )
+        income = totals["income"] or 0
+        expense = totals["expense"] or 0
+        params = self.request.GET.copy()
+        params.pop("page", None)
+        context.update(
+            filter_form=self.filter_form,
+            income=income,
+            expense=expense,
+            balance=income - expense,
+            query_string=params.urlencode(),
+        )
+        return context
 
