@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Extrato{% endblock %}
+
+{% block content %}
+<h1>Extrato</h1>
+
+<form method="get" novalidate>
+  {% if filter_form.non_field_errors %}
+    <div class="errors">{{ filter_form.non_field_errors }}</div>
+  {% endif %}
+
+  {% for field in filter_form %}
+    <div class="field">
+      {{ field.label_tag }}
+      {{ field }}
+      {% for error in field.errors %}
+        <p class="error">{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endfor %}
+
+  <button type="submit">Filtrar</button>
+  <a href="{% url 'finances:statement' %}">Limpar filtros</a>
+</form>
+
+<div class="summary">
+  <p>Receitas: <span class="badge badge-receita">R$ {{ income|floatformat:"2g" }}</span></p>
+  <p>Despesas: <span class="badge badge-despesa">R$ {{ expense|floatformat:"2g" }}</span></p>
+  <p>Saldo do período: <strong>R$ {{ balance|floatformat:"2g" }}</strong></p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Descrição</th>
+      <th>Categoria</th>
+      <th>Conta</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for transaction in transactions %}
+      <tr>
+        <td>{{ transaction.date|date:"d/m/Y" }}</td>
+        <td>{{ transaction.description }}</td>
+        <td>{{ transaction.category.name }}</td>
+        <td>{{ transaction.account.name }}</td>
+        <td>
+          {% if transaction.type == "R" %}
+            <span class="badge badge-receita">+ R$ {{ transaction.value|floatformat:"2g" }}</span>
+          {% else %}
+            <span class="badge badge-despesa">- R$ {{ transaction.value|floatformat:"2g" }}</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5">Nenhuma transação encontrada para esses filtros.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_paginated %}
+  <nav>
+    {% if page_obj.has_previous %}
+      <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+    {% endif %}
+
+    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}">Próxima</a>
+    {% endif %}
+  </nav>
+{% endif %}
+{% endblock %}
