@@ -1,0 +1,43 @@
+
+{% extends "base.html" %}
+
+{% block title %}Categorias{% endblock %}
+
+{% block content %}
+<h1>Categorias</h1>
+
+<p><a href="{% url 'finances:category_create' %}">Nova categoria</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Tipo</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for category in categories %}
+      <tr>
+        <td>{{ category.name }}</td>
+        <td>
+          {% if category.type == "R" %}
+            <span class="badge badge-receita">{{ category.get_type_display }}</span>
+          {% else %}
+            <span class="badge badge-despesa">{{ category.get_type_display }}</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'finances:category_update' category.pk %}">Editar</a>
+          <a href="{% url 'finances:category_delete' category.pk %}">Excluir</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="3">Nenhuma categoria cadastrada neste espaço.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+

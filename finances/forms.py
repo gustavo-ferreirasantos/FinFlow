@@ -26,3 +26,10 @@ class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = ["name", "type", "initial_balance"]
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ["name", "type"]
+

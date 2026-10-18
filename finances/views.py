@@ -4,10 +4,11 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, DeleteView, UpdateView
+from django.db.models import ProtectedError
 
 from users.models import Workspace
-from .forms import TransactionForm, AccountForm
-from .models import Transaction, Account
+from .forms import TransactionForm, AccountForm, CategoryForm
+from .models import Transaction, Account, Category
 
 
 # TEMPORÁRIO: trocar pelo get_active_workspace do users/utils.py
@@ -125,4 +126,71 @@ class AccountDeleteView(WorkspaceMixin, DeleteView):
         messages.success(self.request, f"Conta “{self.object.name}” excluída.")
         return super().form_valid(form)    
 
-    
+
+#ListView exibe a lista de categorias do workspace ativo
+class CategoryListView(WorkspaceMixin, ListView):
+    model = Category
+    template_name = "finances/category_list.html"
+    context_object_name = "categories"
+
+    def get_queryset(self):
+        # "-type" coloca Receita "R" antes de Despesa "D"
+        return Category.objects.filter(workspace=self.workspace).order_by("-type", "name")
+
+
+
+#CreateView cria uma nova categoria
+class CategoryCreateView(WorkspaceMixin, SuccessMessageMixin, CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = "finances/category_form.html"
+    success_url = reverse_lazy("finances:category_list")
+    success_message = "Categoria “%(name)s” criada com sucesso."
+
+    def form_valid(self, form):
+        form.instance.workspace = self.workspace
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Não foi possível salvar a categoria. Corrija os campos destacados.")
+        return super().form_invalid(form)
+
+
+
+#UpdateView atualiza uma categoria existente
+class CategoryUpdateView(WorkspaceMixin, SuccessMessageMixin, UpdateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = "finances/category_form.html"
+    success_url = reverse_lazy("finances:category_list")
+    success_message = "Categoria “%(name)s” atualizada com sucesso."
+
+    def get_queryset(self):
+        return Category.objects.filter(workspace=self.workspace)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Não foi possível salvar a categoria. Corrija os campos destacados.")
+        return super().form_invalid(form)
+
+
+
+#DeleteView exclui uma categoria existente
+class CategoryDeleteView(WorkspaceMixin, DeleteView):
+    model = Category
+    template_name = "finances/category_confirm_delete.html"
+    success_url = reverse_lazy("finances:category_list")
+
+    def get_queryset(self):
+        return Category.objects.filter(workspace=self.workspace)
+
+    def form_valid(self, form):
+        try:
+            response = super().form_valid(form)
+        except ProtectedError:
+            messages.error(self.request, f"A categoria “{self.object.name}” não pode ser excluída porque há transações ou recorrências que a usam.",)
+            return redirect("finances:category_list")
+        messages.success(self.request, f"Categoria “{self.object.name}” excluída.")
+        return response
+
+
+
