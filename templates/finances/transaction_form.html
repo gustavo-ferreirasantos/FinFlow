@@ -1,16 +1,14 @@
 <!-- Formulário de criação de transação -->
 <!-- Completamente dependente do arquivo base.html.
-    Talves precise ser modificado quando fizer o base.html-->
+    Talves(provavelmente) precise ser modificado quando fizer o base.html-->
 
 
 
 {% extends "base.html" %}
 
-{% block title %}Nova transação{% endblock %}
-
+{% block title %}{% if object %}Editar transação{% else %}Nova transação{% endif %}{% endblock %}
 {% block content %}
-<h1>Nova transação</h1>
-
+<h1>{% if object %}Editar transação{% else %}Nova transação{% endif %}</h1>
 <form method="post" novalidate>
   {% csrf_token %}
 
@@ -32,3 +30,4 @@
   <a href="{% url 'finances:transaction_list' %}">Cancelar</a>
 </form>
 {% endblock %}
+

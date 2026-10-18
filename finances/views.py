@@ -25,6 +25,7 @@ def get_active_workspace(request):
 
 #Mixin para verificar se o usuário está autenticado e se possui um workspace ativo
 class WorkspaceMixin(LoginRequiredMixin):
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             self.workspace = get_active_workspace(request)
@@ -178,7 +179,6 @@ class CategoryDeleteView(WorkspaceMixin, DeleteView):
     model = Category
     template_name = "finances/category_confirm_delete.html"
     success_url = reverse_lazy("finances:category_list")
-
     def get_queryset(self):
         return Category.objects.filter(workspace=self.workspace)
 
@@ -192,7 +192,7 @@ class CategoryDeleteView(WorkspaceMixin, DeleteView):
         return response
 
     
-
+#View que exibe o extrato financeiro do workspace ativo
 class StatementView(WorkspaceMixin, ListView):
     model = Transaction
     template_name = "finances/statement.html"
@@ -240,4 +240,37 @@ class StatementView(WorkspaceMixin, ListView):
             query_string=params.urlencode(),
         )
         return context
+
+class TransactionUpdateView(WorkspaceMixin, SuccessMessageMixin, UpdateView):
+    model = Transaction
+    form_class = TransactionForm
+    template_name = "finances/transaction_form.html"
+    success_url = reverse_lazy("finances:transaction_list")
+    success_message = "Transação “%(description)s” atualizada com sucesso."
+
+    def get_queryset(self):
+        return Transaction.objects.filter(account__workspace=self.workspace)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["workspace"] = self.workspace
+        return kwargs
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Não foi possível salvar a transação. Corrija os campos destacados.")
+        return super().form_invalid(form)
+
+
+class TransactionDeleteView(WorkspaceMixin, DeleteView):
+    model = Transaction
+    template_name = "finances/transaction_confirm_delete.html"
+    success_url = reverse_lazy("finances:transaction_list")
+
+    def get_queryset(self):
+        return Transaction.objects.filter(account__workspace=self.workspace)
+
+    def form_valid(self, form):
+        messages.success(self.request, f"Transação “{self.object.description}” excluída.")
+        return super().form_valid(form)
+
 
