@@ -21,7 +21,7 @@
       <div class="container">
         <a
           class="navbar-brand fw-bold text-success"
-          href="{% if user.is_authenticated %}{% url 'finances:transaction_list' %}{% else %}/{% endif %}"
+          href="{% if user.is_authenticated %}{% url 'finances:dashboard' %}{% else %}/{% endif %}"
         >
           <i class="bi bi-wallet2 me-1"></i> FinFlow
         </a>
@@ -39,17 +39,15 @@
           <ul class="navbar-nav me-auto">
             {% if user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="#"
+              <a class="nav-link" href="{% url 'finances:dashboard' %}"
                 ><i class="bi bi-speedometer2"></i> Dashboard</a
               >
             </li>
-            <li class="nav-item"></li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'finances:transaction_list' %}"
                 ><i class="bi bi-arrow-left-right"></i> Transações</a
               >
             </li>
-
             <li class="nav-item">
               <a class="nav-link" href="{% url 'finances:account_list' %}"
                 ><i class="bi bi-bank"></i> Contas</a
@@ -58,6 +56,16 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'finances:category_list' %}"
                 ><i class="bi bi-tags"></i> Categorias</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'finances:simulator' %}"
+                ><i class="bi bi-calculator"></i> Simulador</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'finances:currency_quotes' %}"
+                ><i class="bi bi-currency-exchange"></i> Cotações</a
               >
             </li>
             {% endif %}
@@ -161,8 +169,13 @@
             </li>
             {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="/simulador/"
+              <a class="nav-link" href="{% url 'finances:simulator' %}"
                 ><i class="bi bi-calculator me-1"></i> Simulador</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'finances:currency_quotes' %}"
+                ><i class="bi bi-currency-exchange me-1"></i> Cotações</a
               >
             </li>
             <li class="nav-item">

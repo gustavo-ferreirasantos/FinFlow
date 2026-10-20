@@ -4,6 +4,12 @@ from . import views as views
 app_name = "finances"
 
 urlpatterns = [
+    # Dashboard, Simulador Público e Cotações (Pessoa 4)
+    path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
+    path("simulador/", views.SimulatorView.as_view(), name="simulator"),
+    path("cotacoes/", views.CurrencyQuoteView.as_view(), name="currency_quotes"),
+
+    # Transações, Contas e Categorias
     path("transacoes/", views.TransactionListView.as_view(), name="transaction_list"),
     path("transacoes/nova/", views.TransactionCreateView.as_view(), name="transaction_create"),
     path("contas/", views.AccountListView.as_view(), name="account_list"),

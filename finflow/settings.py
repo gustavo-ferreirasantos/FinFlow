@@ -146,7 +146,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Constantes de Autenticação
-LOGIN_REDIRECT_URL = 'finances:transaction_list' # Redireciona para o dashboard após logar
-# LOGIN_REDIRECT_URL = 'finances:dashboard' # Redireciona para o dashboard após logar
+LOGIN_REDIRECT_URL = 'finances:dashboard' # Redireciona para o dashboard após logar
 LOGOUT_REDIRECT_URL = 'login' # Redireciona para o login após logout
 LOGIN_URL = 'login'

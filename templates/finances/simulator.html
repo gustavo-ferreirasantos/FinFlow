@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Simulador 50/30/20 — FinFlow{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h1 class="h3 fw-bold mb-1">
+    <i class="bi bi-calculator text-success me-1"></i> Simulador Financeiro (Regra 50/30/20)
+  </h1>
+  <p class="text-muted mb-0">
+    Descubra gratuitamente se a divisão do seu orçamento mensal está equilibrada entre <strong>Necessidades (50%)</strong>, <strong>Desejos (30%)</strong> e <strong>Poupança/Investimentos (20%)</strong>.
+  </p>
+</div>
+
+<div class="row g-4">
+  <!-- Coluna do Formulário -->
+  <div class="col-12 col-lg-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title fw-bold mb-0">Informe seus Valores Mensais</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger small">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label fw-semibold small mb-1">
+                {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-graph-up me-1"></i> Gerar Diagnóstico Financeiro
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coluna do Diagnóstico / Resultado -->
+  <div class="col-12 col-lg-7">
+    {% if resultado %}
+      <!-- Resumo de Valores e Comparativo 50/30/20 -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <h5 class="card-title fw-bold mb-0">Seu Diagnóstico 50/30/20</h5>
+          <span class="badge bg-dark">Renda: R$ {{ resultado.renda|floatformat:2|intcomma }}</span>
+        </div>
+        <div class="card-body">
+          <!-- Bloco 1: Necessidades (50%) -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-bold">1. Necessidades Essenciais (Meta: até 50%)</span>
+              <span class="badge {% if resultado.perc_necessidades > 50 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                Real: {{ resultado.perc_necessidades }}%
+              </span>
+            </div>
+            <div class="progress mb-1" style="height: 10px;">
+              <div
+                class="progress-bar {% if resultado.perc_necessidades > 50 %}bg-warning{% else %}bg-success{% endif %}"
+                role="progressbar"
+                style="width: {{ resultado.barra_necessidades }}%"
+              ></div>
+            </div>
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Seu gasto: <strong>R$ {{ resultado.necessidades|floatformat:2|intcomma }}</strong></span>
+              <span>Recomendado (50%): R$ {{ resultado.ideal_necessidades|floatformat:2|intcomma }}</span>
+            </div>
+          </div>
+
+          <!-- Bloco 2: Desejos e Estilo de Vida (30%) -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-bold">2. Desejos / Estilo de Vida (Meta: até 30%)</span>
+              <span class="badge {% if resultado.perc_desejos > 30 %}bg-warning text-dark{% else %}bg-primary{% endif %}">
+                Real: {{ resultado.perc_desejos }}%
+              </span>
+            </div>
+            <div class="progress mb-1" style="height: 10px;">
+              <div
+                class="progress-bar {% if resultado.perc_desejos > 30 %}bg-warning{% else %}bg-primary{% endif %}"
+                role="progressbar"
+                style="width: {{ resultado.barra_desejos }}%"
+              ></div>
+            </div>
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Seu gasto: <strong>R$ {{ resultado.desejos|floatformat:2|intcomma }}</strong></span>
+              <span>Recomendado (30%): R$ {{ resultado.ideal_desejos|floatformat:2|intcomma }}</span>
+            </div>
+          </div>
+
+          <!-- Bloco 3: Investimentos e Poupança (20%) -->
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-bold">3. Poupança e Investimentos (Meta: mínimo 20%)</span>
+              <span class="badge {% if resultado.perc_poupanca < 0 %}bg-danger{% elif resultado.perc_poupanca < 20 %}bg-secondary{% else %}bg-success{% endif %}">
+                Real: {{ resultado.perc_poupanca }}%
+              </span>
+            </div>
+            <div class="progress mb-1" style="height: 10px;">
+              <div
+                class="progress-bar {% if resultado.perc_poupanca < 20 %}bg-secondary{% else %}bg-success{% endif %}"
+                role="progressbar"
+                style="width: {{ resultado.barra_poupanca }}%"
+              ></div>
+            </div>
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Valor restante: <strong>R$ {{ resultado.poupanca|floatformat:2|intcomma }}</strong></span>
+              <span>Recomendado (20%): R$ {{ resultado.ideal_poupanca|floatformat:2|intcomma }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertas e Dicas de Economia -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h5 class="card-title fw-bold mb-0">
+            <i class="bi bi-lightbulb text-warning me-1"></i> Recomendações e Alertas
+          </h5>
+        </div>
+        <div class="card-body">
+          {% for alerta in resultado.alertas %}
+            <div class="alert alert-{{ alerta.tipo }} mb-3 last-mb-0">
+              <h6 class="alert-heading fw-bold mb-1">{{ alerta.titulo }}</h6>
+              <p class="small mb-0">{{ alerta.texto }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <!-- Estado Inicial antes do envio do formulário -->
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-5">
+          <div class="p-3 rounded-circle bg-success bg-opacity-10 text-success mb-3">
+            <i class="bi bi-pie-chart-fill" style="font-size: 2.5rem;"></i>
+          </div>
+          <h5 class="fw-bold">Como funciona o método 50/30/20?</h5>
+          <p class="text-muted small mb-4">
+            Preencha sua renda líquida e suas despesas ao lado para visualizar o comparativo automático:
+          </p>
+          <div class="row g-3 text-start w-100">
+            <div class="col-12 col-md-4">
+              <div class="p-3 bg-light rounded border h-100">
+                <strong class="text-success d-block mb-1">50% Necessidades</strong>
+                <span class="small text-muted">Moradia, alimentação e transporte indispensáveis para o dia a dia.</span>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="p-3 bg-light rounded border h-100">
+                <strong class="text-primary d-block mb-1">30% Desejos</strong>
+                <span class="small text-muted">Lazer, restaurantes, assinaturas, hobbies e compras pessoais.</span>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="p-3 bg-light rounded border h-100">
+                <strong class="text-dark d-block mb-1">20% Futuro</strong>
+                <span class="small text-muted">Reserva de emergência, quitação de dívidas e investimentos.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

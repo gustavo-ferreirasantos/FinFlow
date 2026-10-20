@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Cotações de Moedas — FinFlow{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+  <div>
+    <h1 class="h3 fw-bold mb-1">
+      <i class="bi bi-currency-exchange text-success me-1"></i> Cotações em Tempo Real
+    </h1>
+    <p class="text-muted small mb-0">
+      Acompanhe a variação do Dólar, Euro e Bitcoin em relação ao Real (BRL) via AwesomeAPI.
+    </p>
+  </div>
+  <a href="{% url 'finances:currency_quotes' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-clockwise me-1"></i> Atualizar Cotações
+  </a>
+</div>
+
+{% if usando_fallback %}
+  <div class="alert alert-warning d-flex align-items-center shadow-sm mb-4" role="alert">
+    <i class="bi bi-wifi-off fs-5 me-2"></i>
+    <div>
+      <strong>Modo de contingência ativo:</strong> Não foi possível conectar à AwesomeAPI no momento. Exibindo valores de referência salvos localmente.
+    </div>
+  </div>
+{% endif %}
+
+<!-- Cards de Cotações (Dólar, Euro, Bitcoin) -->
+<div class="row g-4">
+  {% for item in cotacoes %}
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <div class="p-2 rounded bg-{{ item.cor }} bg-opacity-10 text-{{ item.cor }}">
+                <i class="bi {{ item.icone }} fs-4"></i>
+              </div>
+              <div>
+                <h5 class="card-title fw-bold mb-0">{{ item.titulo }}</h5>
+                <span class="text-muted small">{{ item.codigo }} / BRL</span>
+              </div>
+            </div>
+            {% if item.em_alta %}
+              <span class="badge bg-success">
+                <i class="bi bi-graph-up-arrow me-1"></i> +{{ item.variacao|floatformat:2 }}%
+              </span>
+            {% else %}
+              <span class="badge bg-danger">
+                <i class="bi bi-graph-down-arrow me-1"></i> {{ item.variacao|floatformat:2 }}%
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="my-3 py-3 border-top border-bottom">
+            <span class="text-muted small d-block mb-1">Valor de Compra (Bid)</span>
+            <h3 class="fw-bold text-dark mb-0">
+              R$ {{ item.compra|floatformat:2|intcomma }}
+            </h3>
+          </div>
+
+          <div class="row text-center g-2 mb-3">
+            <div class="col-6">
+              <div class="p-2 bg-light rounded">
+                <span class="text-muted small d-block">Máxima do Dia</span>
+                <strong class="text-success">R$ {{ item.maxima|floatformat:2|intcomma }}</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-2 bg-light rounded">
+                <span class="text-muted small d-block">Mínima do Dia</span>
+                <strong class="text-danger">R$ {{ item.minima|floatformat:2|intcomma }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-muted small text-end">
+            <i class="bi bi-clock me-1"></i> {{ item.atualizado_em }}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
