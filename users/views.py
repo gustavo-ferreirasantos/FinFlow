@@ -5,7 +5,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from .forms import InvitationForm, ProfileEditForm, UserRegisterForm, WorkspaceForm
 from .models import Invitation, Profile, Workspace, WorkspaceMember
@@ -189,3 +189,32 @@ class AcceptInvitationView(LoginRequiredMixin, View):
         request.session["active_workspace_id"] = str(invitation.workspace.id)
         messages.success(request, f"Convite aceito! Você entrou no espaço “{invitation.workspace.name}”.")
         return redirect("finances:transaction_list")
+
+
+class WorkspaceUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Workspace
+    form_class = WorkspaceForm
+    template_name = "users/workspace_form.html"
+    success_url = reverse_lazy("users:workspace_list")
+    success_message = "Espaço atualizado com sucesso."
+
+    def get_queryset(self):
+        profile, _ = Profile.objects.get_or_create(user=self.request.user)
+        return Workspace.objects.filter(holder=profile)
+
+
+class WorkspaceDeleteView(LoginRequiredMixin, DeleteView):
+    model = Workspace
+    template_name = "users/workspace_confirm_delete.html"
+    success_url = reverse_lazy("users:workspace_list")
+
+    def get_queryset(self):
+        profile, _ = Profile.objects.get_or_create(user=self.request.user)
+        return Workspace.objects.filter(holder=profile)
+
+    def form_valid(self, form):
+        workspace = self.get_object()
+        if self.request.session.get("active_workspace_id") == str(workspace.id):
+            self.request.session.pop("active_workspace_id", None)
+        messages.success(self.request, f"Espaço “{workspace.name}” excluído com sucesso.")
+        return super().form_valid(form)

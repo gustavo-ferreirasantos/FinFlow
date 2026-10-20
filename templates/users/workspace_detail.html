@@ -8,9 +8,19 @@
     <h1 class="h3 fw-bold mb-1">{{ workspace.name }}</h1>
     <span class="text-muted small">Proprietário: {{ workspace.holder.user.get_full_name|default:workspace.holder.user.username }}</span>
   </div>
-  <a href="{% url 'users:invite_member' workspace.id %}" class="btn btn-primary">
-    <i class="bi bi-person-plus me-1"></i> Convidar Membro
-  </a>
+  <div class="d-flex gap-2">
+    {% if is_holder %}
+      <a href="{% url 'users:workspace_update' workspace.id %}" class="btn btn-outline-secondary">
+        <i class="bi bi-pencil me-1"></i> Editar Nome
+      </a>
+      <a href="{% url 'users:workspace_delete' workspace.id %}" class="btn btn-outline-danger">
+        <i class="bi bi-trash me-1"></i> Excluir Espaço
+      </a>
+    {% endif %}
+    <a href="{% url 'users:invite_member' workspace.id %}" class="btn btn-primary">
+      <i class="bi bi-person-plus me-1"></i> Convidar Membro
+    </a>
+  </div>
 </div>
 
 <!-- Tabela de Membros Atuais -->
