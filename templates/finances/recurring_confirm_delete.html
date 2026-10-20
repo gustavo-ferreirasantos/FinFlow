@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir transação recorrente{% endblock %}
+
+{% block content %}
+<h1>Excluir transação recorrente</h1>
+
+<p>Tem certeza de que deseja excluir a transação recorrente “{{ object.description }}”?</p>
+<p class="warning">Ela deixará de ser considerada nos lembretes futuros. Essa ação não pode ser desfeita.</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Sim, excluir</button>
+  <a href="{% url 'finances:recurring_list' %}">Cancelar</a>
+</form>
+{% endblock %}

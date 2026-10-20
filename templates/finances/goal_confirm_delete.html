@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir meta{% endblock %}
+
+{% block content %}
+<h1>Excluir meta</h1>
+
+<p>Tem certeza de que deseja excluir a meta “{{ object.name }}”?</p>
+<p class="warning">Todo o progresso acumulado será perdido. Essa ação não pode ser desfeita.</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Sim, excluir</button>
+  <a href="{% url 'finances:goal_list' %}">Cancelar</a>
+</form>
+{% endblock %}

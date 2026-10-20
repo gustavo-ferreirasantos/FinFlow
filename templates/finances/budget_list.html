@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Orçamentos{% endblock %}
+
+{% block content %}
+<h1>Orçamentos</h1>
+
+<p><a href="{% url 'finances:budget_create' %}">Novo orçamento</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Categoria</th>
+      <th>Mês</th>
+      <th>Limite</th>
+      <th>Gasto</th>
+      <th>Progresso</th>
+      <th>Situação</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in itens %}
+      <tr>
+        <td>{{ item.budget.category.name }}</td>
+        <td>{{ item.budget.reference_month|date:"m/Y" }}</td>
+        <td>R$ {{ item.budget.limit_value|intcomma }}</td>
+        <td>R$ {{ item.gasto|intcomma }}</td>
+        <td>
+          {{ item.percentual }}%
+          <div style="height:14px;border:1px solid #ccc;border-radius:4px;background:#f0f0f0;min-width:120px;">
+            <div style="width:{{ item.percentual_barra }}%;height:100%;border-radius:3px;background:{% if item.classe == 'alerta-vermelho' %}#d9534f{% elif item.classe == 'alerta-amarelo' %}#f0ad4e{% else %}#5cb85c{% endif %};"></div>
+          </div>
+        </td>
+        <td><span class="badge {{ item.classe }}">{{ item.nivel }}</span></td>
+        <td>
+          <a href="{% url 'finances:budget_delete' item.budget.pk %}">Excluir</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="7">Nenhum orçamento cadastrado neste espaço.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

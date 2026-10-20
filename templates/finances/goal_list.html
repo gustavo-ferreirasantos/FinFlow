@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Metas financeiras{% endblock %}
+
+{% block content %}
+<h1>Metas financeiras</h1>
+
+<p><a href="{% url 'finances:goal_create' %}">Nova meta</a></p>
+
+{% for item in itens %}
+  <div style="border:1px solid #ccc;border-radius:6px;padding:12px;margin-bottom:12px;">
+    <h2 style="margin-top:0;">{{ item.goal.name }}</h2>
+
+    <p>
+      <strong>Alvo:</strong> R$ {{ item.goal.target_value|intcomma }} &nbsp;
+      <strong>Atual:</strong> R$ {{ item.goal.current_value|intcomma }} &nbsp;
+      <strong>Prazo:</strong> {{ item.goal.deadline|date:"d/m/Y" }} &nbsp;
+      <span class="badge">{{ item.percentual }}%</span>
+    </p>
+
+    <div style="height:16px;border:1px solid #ccc;border-radius:4px;background:#f0f0f0;">
+      <div style="width:{{ item.percentual_barra }}%;height:100%;border-radius:3px;background:{% if item.percentual >= 100 %}#5cb85c{% elif item.percentual >= 80 %}#f0ad4e{% else %}#337ab7{% endif %};"></div>
+    </div>
+
+    <form method="post" action="{% url 'finances:goal_deposit' item.goal.pk %}" style="margin-top:8px;">
+      {% csrf_token %}
+      <label>{{ item.form_aporte.value.label }}: {{ item.form_aporte.value }}</label>
+      <button type="submit">Registrar aporte</button>
+      {% for error in item.form_aporte.value.errors %}
+        <p class="error">{{ error }}</p>
+      {% endfor %}
+    </form>
+  </div>
+{% empty %}
+  <p>Nenhuma meta cadastrada neste espaço.</p>
+{% endfor %}
+{% endblock %}

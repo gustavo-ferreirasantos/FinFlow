@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Transações recorrentes{% endblock %}
+
+{% block content %}
+<h1>Transações recorrentes</h1>
+
+<p><a href="{% url 'finances:recurring_create' %}">Nova transação recorrente</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Descrição</th>
+      <th>Valor</th>
+      <th>Tipo</th>
+      <th>Conta</th>
+      <th>Categoria</th>
+      <th>Dia</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for recurrence in recurrences %}
+      <tr>
+        <td>{{ recurrence.description }}</td>
+        <td>
+          {% if recurrence.type == "R" %}
+            <span class="badge badge-receita">+ R$ {{ recurrence.value|intcomma }}</span>
+          {% else %}
+            <span class="badge badge-despesa">- R$ {{ recurrence.value|intcomma }}</span>
+          {% endif %}
+        </td>
+        <td>{{ recurrence.get_type_display }}</td>
+        <td>{{ recurrence.account.name }}</td>
+        <td>{{ recurrence.category.name }}</td>
+        <td>Dia {{ recurrence.due_day }}</td>
+        <td>
+          <a href="{% url 'finances:recurring_delete' recurrence.pk %}">Excluir</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="7">Nenhuma transação recorrente cadastrada neste espaço.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

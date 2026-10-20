@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Cartões de crédito{% endblock %}
+
+{% block content %}
+<h1>Cartões de crédito</h1>
+
+<p>
+  <a href="{% url 'finances:card_create' %}">Novo cartão</a>
+  &nbsp;|&nbsp;
+  <strong>Limite total:</strong> R$ {{ total_limite|intcomma }}
+</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+  {% for item in itens %}
+    <div style="border:1px solid #ccc;border-radius:8px;padding:16px;background:#fafafa;">
+      <h2 style="margin-top:0;font-size:1.1em;">{{ item.card.name }}</h2>
+
+      <p style="margin:4px 0;">Conta: <strong>{{ item.card.account.name }}</strong></p>
+      <p style="margin:4px 0;">Limite: <strong>R$ {{ item.card.limit|intcomma }}</strong></p>
+      <p style="margin:4px 0;">
+        Fechamento: dia {{ item.card.closing_day }} &middot; Vencimento: dia {{ item.card.due_day }}
+      </p>
+
+      <hr style="border:none;border-top:1px solid #ddd;margin:10px 0;">
+
+      <p style="margin:4px 0;">
+        {% if item.faturas_abertas %}
+          <span class="badge badge-aberta">{{ item.faturas_abertas|length }} fatura(s) em aberto</span>
+        {% else %}
+          <span class="badge badge-pago">Sem faturas em aberto</span>
+        {% endif %}
+      </p>
+      <p style="margin:4px 0;">Valor em aberto: <strong>R$ {{ item.total_aberto|intcomma }}</strong></p>
+
+      {% if item.faturas_abertas %}
+        <p style="margin:8px 0 0;">
+          Faturas:
+          {% for invoice in item.faturas_abertas %}
+            <a href="{% url 'finances:invoice_detail' invoice.pk %}" style="margin-right:6px;">{{ invoice.reference_month|date:"m/Y" }}</a>
+          {% endfor %}
+        </p>
+      {% endif %}
+    </div>
+  {% empty %}
+    <p>Nenhum cartão cadastrado neste espaço.</p>
+  {% endfor %}
+</div>
+{% endblock %}

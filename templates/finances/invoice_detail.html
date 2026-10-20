@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Fatura {{ invoice.reference_month|date:"m/Y" }}{% endblock %}
+
+{% block content %}
+<h1>Fatura de {{ invoice.credit_card.name }} — {{ invoice.reference_month|date:"m/Y" }}</h1>
+
+<p>
+  <strong>Status:</strong>
+  {% if invoice.status == "P" %}
+    <span class="badge badge-pago">Paga</span>
+  {% elif invoice.status == "F" %}
+    <span class="badge badge-fechada">Fechada</span>
+  {% else %}
+    <span class="badge badge-aberta">Aberta</span>
+  {% endif %}
+</p>
+<p><strong>Valor total:</strong> R$ {{ invoice.total_value|intcomma }}</p>
+<p><strong>Conta:</strong> {{ invoice.credit_card.account.name }}</p>
+
+<h2>Lançamentos do mês</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Descrição</th>
+      <th>Categoria</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for lancamento in lancamentos %}
+      <tr>
+        <td>{{ lancamento.date|date:"d/m/Y" }}</td>
+        <td>{{ lancamento.description }}</td>
+        <td>{{ lancamento.category.name }}</td>
+        <td>
+          {% if lancamento.type == "R" %}
+            <span class="badge badge-receita">+ R$ {{ lancamento.value|intcomma }}</span>
+          {% else %}
+            <span class="badge badge-despesa">- R$ {{ lancamento.value|intcomma }}</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4">Nenhum lançamento no mês de referência.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if invoice.status != "P" %}
+  <h2>Pagar fatura</h2>
+
+  <p class="warning">
+    O pagamento registra uma despesa de R$ {{ invoice.total_value|intcomma }} na conta do cartão.
+  </p>
+
+  <form method="post" action="{% url 'finances:invoice_pay' invoice.pk %}">
+    {% csrf_token %}
+    <button type="submit">Registrar pagamento</button>
+  </form>
+{% endif %}
+
+<p><a href="{% url 'finances:card_list' %}">Voltar aos cartões</a></p>
+{% endblock %}
