@@ -9,18 +9,19 @@ from django.db.models import ProtectedError
 from users.models import Workspace
 from .forms import TransactionForm, AccountForm, CategoryForm
 from .models import Transaction, Account, Category
+from users.utils import get_active_workspace
 
 
-# TEMPORÁRIO: trocar pelo get_active_workspace do users/utils.py
-def get_active_workspace(request):
-    workspaces = Workspace.objects.filter(workspacemember__profile__user=request.user)
-    workspace_id = request.session.get("active_workspace_id")
-    workspace = workspaces.filter(pk=workspace_id).first() if workspace_id else None
-    if workspace is None:
-        workspace = workspaces.first()
-        if workspace:
-            request.session["active_workspace_id"] = workspace.pk
-    return workspace
+# # TEMPORÁRIO: trocar pelo get_active_workspace do users/utils.py
+# def get_active_workspace(request):
+#     workspaces = Workspace.objects.filter(workspacemember__profile__user=request.user)
+#     workspace_id = request.session.get("active_workspace_id")
+#     workspace = workspaces.filter(pk=workspace_id).first() if workspace_id else None
+#     if workspace is None:
+#         workspace = workspaces.first()
+#         if workspace:
+#             request.session["active_workspace_id"] = workspace.pk
+#     return workspace
 
 
 #Mixin para verificar se o usuário está autenticado e se possui um workspace ativo
@@ -30,7 +31,8 @@ class WorkspaceMixin(LoginRequiredMixin):
             self.workspace = get_active_workspace(request)
             if self.workspace is None:
                 messages.warning(request, "Você ainda não participa de nenhum espaço financeiro.")
-                return redirect("admin:index")
+                return redirect("users:workspace_list")
+                # return redirect("admin:index")
         return super().dispatch(request, *args, **kwargs)
 
 

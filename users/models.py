@@ -22,7 +22,7 @@ class Profile(models.Model):
 
 class Workspace (models.Model):
     name = models.CharField(max_length=100)
-    holder = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    holder = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='workspaces')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -40,8 +40,8 @@ class WorkspaceMember (models.Model):
         "T": "TITULAR",
         "M": "MEMBRO",
     }
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='members')
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='memberships')
     role = models.CharField(max_length=1, choices=ROLE_CHOICES)
     registered_at = models.DateTimeField(auto_now_add=True)
 
@@ -63,7 +63,7 @@ class Invitation (models.Model):
         "R": "REJEITADO",
         "E": "EXPIRADO",
     }
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='invitations')
     email = models.EmailField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default="P")
     token = models.UUIDField(default=uuid.uuid4, unique=True, blank=True, null=True)

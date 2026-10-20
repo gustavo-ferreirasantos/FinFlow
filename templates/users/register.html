@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Criar Conta — FinFlow{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h2 class="card-title fw-bold mb-2">Criar Nova Conta</h2>
+        <p class="text-muted small mb-4">Preencha os campos abaixo para criar seu perfil e seu primeiro espaço financeiro.</p>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2 mb-3">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {% for error in field.errors %}
+                <p class="text-danger small mt-1 mb-0">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-success">Finalizar Cadastro</button>
+            <a href="{% url 'login' %}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

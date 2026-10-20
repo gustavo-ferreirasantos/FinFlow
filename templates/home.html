@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}FinFlow — Gestão Financeira Inteligente{% endblock %}
+
+{% block content %}
+<!-- Seção Hero / Apresentação Principal -->
+<div class="p-5 mb-5 bg-white rounded-3 shadow-sm border text-center">
+  <div class="container py-4">
+    <div class="d-inline-flex p-3 rounded-circle bg-success bg-opacity-10 text-success mb-3">
+      <i class="bi bi-wallet2" style="font-size: 3rem;"></i>
+    </div>
+    
+    <h1 class="display-5 fw-bold text-dark">Bem-vindo ao FinFlow</h1>
+    <p class="col-md-8 mx-auto fs-5 text-muted mb-4">
+      O sistema moderno e distribuído para você controlar transações, gerenciar contas bancárias, 
+      estabelecer metas e colaborar em múltiplos espaços financeiros com sua família ou equipe.
+    </p>
+
+    {% if user.is_authenticated %}
+      <!-- Ações para Usuário Logado -->
+      <div class="alert alert-light border d-inline-block px-4 py-2 mb-4">
+        <span class="text-muted">Espaço atual:</span> 
+        <strong class="text-success">{{ active_workspace.name|default:"Nenhum espaço selecionado" }}</strong>
+      </div>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'finances:transaction_list' %}" class="btn btn-success btn-lg px-4">
+          <i class="bi bi-arrow-left-right me-1"></i> Ver Transações
+        </a>
+        <a href="{% url 'users:workspace_list' %}" class="btn btn-outline-dark btn-lg px-4">
+          <i class="bi bi-briefcase me-1"></i> Meus Espaços
+        </a>
+        <a href="{% url 'finances:account_list' %}" class="btn btn-outline-secondary btn-lg px-4">
+          <i class="bi bi-bank me-1"></i> Contas Bancárias
+        </a>
+      </div>
+    {% else %}
+      <!-- Ações para Visitante Não Logado -->
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'users:register' %}" class="btn btn-success btn-lg px-4">
+          <i class="bi bi-person-plus me-1"></i> Criar Conta Grátis
+        </a>
+        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-4">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Acessar Minha Conta
+        </a>
+        <a href="/simulador/" class="btn btn-outline-secondary btn-lg px-4">
+          <i class="bi bi-calculator me-1"></i> Simulador Público
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Cards com os Recursos do Sistema -->
+<div class="row g-4 mb-5">
+  <div class="col-12 col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body p-4 text-center">
+        <div class="text-primary mb-3">
+          <i class="bi bi-people-fill" style="font-size: 2.2rem;"></i>
+        </div>
+        <h5 class="card-title fw-bold">Multi-Workspace</h5>
+        <p class="card-text text-muted small">
+          Isole suas finanças pessoais das contas da sua empresa. Convide membros por e-mail e compartilhe orçamentos com facilidade.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body p-4 text-center">
+        <div class="text-success mb-3">
+          <i class="bi bi-graph-up-arrow" style="font-size: 2.2rem;"></i>
+        </div>
+        <h5 class="card-title fw-bold">Controle Financeiro</h5>
+        <p class="card-text text-muted small">
+          Registre receitas e despesas por categoria, gerencie cartões de crédito, contas bancárias e consulte extratos detalhados.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body p-4 text-center">
+        <div class="text-warning mb-3">
+          <i class="bi bi-bullseye" style="font-size: 2.2rem;"></i>
+        </div>
+        <h5 class="card-title fw-bold">Metas & Orçamentos</h5>
+        <p class="card-text text-muted small">
+          Defina limites mensais para cada categoria de gasto e acompanhe o progresso das suas metas de economia em tempo real.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

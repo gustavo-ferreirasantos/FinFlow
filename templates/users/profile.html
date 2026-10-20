@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil — FinFlow{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 fw-bold mb-0">Meu Perfil</h1>
+      <a href="{% url 'users:profile_edit' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-pencil me-1"></i> Editar Dados
+      </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-4">
+          <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+            <i class="bi bi-person"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">{{ profile.user.get_full_name|default:profile.user.username }}</h5>
+            <span class="text-muted small">@{{ profile.user.username }}</span>
+          </div>
+        </div>
+
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span class="text-muted">E-mail:</span>
+            <span class="fw-semibold">{{ profile.user.email|default:"Não informado" }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span class="text-muted">Telefone:</span>
+            <span class="fw-semibold">{{ profile.telephone|default:"Não informado" }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span class="text-muted">Membro desde:</span>
+            <span class="fw-semibold">{{ profile.user.date_joined|date:"d/m/Y" }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

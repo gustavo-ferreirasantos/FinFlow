@@ -65,9 +65,11 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug', #
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'users.context_processors.active_workspace_processor',
             ],
         },
     },
@@ -79,12 +81,24 @@ WSGI_APPLICATION = 'finflow.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'finflow_db',             # Nome do banco de dados
+#         'USER': 'finflow_user',           # Usuário do banco
+#         'PASSWORD': 'finflow_123',   # Senha definida no Postgres
+#         'HOST': 'localhost',              # 'localhost' se o Postgres estiver na mesma EC2
+#         'PORT': '5432',                   # Porta padrão do PostgreSQL
+#     }
+# }
 
 
 # Password validation
@@ -122,8 +136,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# STATICFILES_DIRS = [BASE_DIR / 'static'] # Recomendado para assets customizados globais 
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Constantes de Autenticação
+LOGIN_REDIRECT_URL = 'finances:transaction_list' # Redireciona para o dashboard após logar
+# LOGIN_REDIRECT_URL = 'finances:dashboard' # Redireciona para o dashboard após logar
+LOGOUT_REDIRECT_URL = 'login' # Redireciona para o login após logout
+LOGIN_URL = 'login'

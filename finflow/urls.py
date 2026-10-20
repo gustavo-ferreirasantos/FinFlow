@@ -16,12 +16,25 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from django.views.generic import TemplateView
 
 
 admin.site.site_header = "Dashboard Admin"
 
 urlpatterns = [
+    # Painel de Admin
     path('admin/', admin.site.urls),
+
+    # Autenticação do Django
+    path('accounts/', include('django.contrib.auth.urls')),
+
+    # 
+    path('usuarios/', include('users.urls')),
+
+    # 
     path('', include('finances.urls')),
+
+
+    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+
 ]
