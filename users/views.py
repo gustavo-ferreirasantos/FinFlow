@@ -108,6 +108,8 @@ class WorkspaceDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "workspace"
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Workspace.objects.all()
         profile, _ = Profile.objects.get_or_create(user=self.request.user)
         return Workspace.objects.filter(members__profile=profile)
 
@@ -117,7 +119,7 @@ class WorkspaceDetailView(LoginRequiredMixin, DetailView):
         profile, _ = Profile.objects.get_or_create(user=self.request.user)
         context["members"] = workspace.members.select_related("profile__user").all()
         context["pending_invitations"] = Invitation.objects.filter(workspace=workspace, status="P").order_by("-sent_at")
-        context["is_holder"] = (workspace.holder == profile)
+        context["is_holder"] = (workspace.holder == profile or self.request.user.is_superuser)
         return context
 
 
@@ -199,6 +201,8 @@ class WorkspaceUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = "Espaço atualizado com sucesso."
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Workspace.objects.all()
         profile, _ = Profile.objects.get_or_create(user=self.request.user)
         return Workspace.objects.filter(holder=profile)
 
@@ -209,12 +213,23 @@ class WorkspaceDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("users:workspace_list")
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Workspace.objects.all()
         profile, _ = Profile.objects.get_or_create(user=self.request.user)
         return Workspace.objects.filter(holder=profile)
 
-    def form_valid(self, form):
-        workspace = self.get_object()
-        if self.request.session.get("active_workspace_id") == str(workspace.id):
-            self.request.session.pop("active_workspace_id", None)
-        messages.success(self.request, f"Espaço “{workspace.name}” excluído com sucesso.")
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        workspace = self.object
+        with transaction.atomic():
+            try:
+                from finances.models import Transaction, RecurringTransaction
+                Transaction.objects.filter(account__workspace=workspace).delete()
+                RecurringTransaction.objects.filter(workspace=workspace).delete()
+            except Exception:
+                pass
+            if self.request.session.get("active_workspace_id") == str(workspace.id):
+                self.request.session.pop("active_workspace_id", None)
+            workspace.delete()
+        messages.success(request, f"Espaço “{workspace.name}” excluído com sucesso.")
+        return redirect(self.success_url)

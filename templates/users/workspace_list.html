@@ -44,6 +44,14 @@
             <a href="{% url 'users:workspace_detail' ws.id %}" class="btn btn-outline-secondary btn-sm" title="Gerenciar Membros">
               <i class="bi bi-people"></i>
             </a>
+            {% if ws.holder == user.profile or user.is_superuser %}
+              <a href="{% url 'users:workspace_update' ws.id %}" class="btn btn-outline-secondary btn-sm" title="Editar Nome">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'users:workspace_delete' ws.id %}" class="btn btn-outline-danger btn-sm" title="Excluir Espaço">
+                <i class="bi bi-trash"></i>
+              </a>
+            {% endif %}
           </div>
         </div>
       </div>
